@@ -1,0 +1,12 @@
+---
+interval: 60  # Interval in seconds to read sensors
+server: # settings for connecting to MQTT server
+ host: 'localhost'
+ port: 1883
+ command_topic: 'garden/command'
+sensors:
+ - name: 'garden/greenhouse/temp'
+   channel: 0  #Channel of the AD chip at which the sensor is connected
+ - name: 'garden/temp'
+   channel: 3
+

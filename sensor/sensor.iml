@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="RUBY_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$" />
+    <orderEntry type="jdk" jdkName="ruby-2.0.0-p384" jdkType="RUBY_SDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" scope="PROVIDED" name="eventmachine (v1.0.9, ruby-2.0.0-p384) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="ffi (v1.9.14, ruby-2.0.0-p384) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="pi_piper (v2.0.0, ruby-2.0.0-p384) [gem]" level="application" />
+  </component>
+</module>
