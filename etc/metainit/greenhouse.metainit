@@ -1,0 +1,7 @@
+Short-Description: Greenhouse sensor app
+Description: Program that reads sensor values form SDI interface and sends them via MQTT
+Exec: /usr/bin/ruby2.1 /home/pi/greenhouse/greenhouse.rb
+Required-Start: $networking
+Required-Stop: $networking
+Prestart-Hook: echo "Starting greenhouse";
+Poststop-Hook: echo "Stopping greenhouse";

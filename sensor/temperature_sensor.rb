@@ -22,6 +22,7 @@ require_relative 'kty81'
 class Temperature_Sensor
 
   def initialize(u_total=3.3, resistance_r = 1200)
+    @logger = Logging.logger[self]
     @u_total = u_total
     @r_r = resistance_r
     @ad_converter= MCP3208.new(@u_total)
@@ -29,11 +30,11 @@ class Temperature_Sensor
   end
 
   def read_sensor(channel = 0)
-    u_t = @ad_converter.readValue(channel)
+    u_t = @ad_converter.read_value(channel)
     # u_t = 2.0  # Value for testing
     r_t = calculate_resistance(u_t)
 
-    return @temperature_sensor.to_temp(r_t)
+    @temperature_sensor.to_temp(r_t)
   end
 
   private
@@ -43,7 +44,8 @@ class Temperature_Sensor
       # R = U / I -> I = U / R
       i = u_r / @r_r.to_f
       r_t = u_t / i
-      return r_t
+      @logger.debug "Voltage sensor: %f, Resistance sensor: %f " % [u_r, r_t]
+      r_t
     end
 
 

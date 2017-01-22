@@ -1,5 +1,9 @@
 class KTY81_220
 
+  def initialize
+    @logger = Logging.logger[self]
+  end
+
   @@RESISTANCE_TABLE = [
       {:r => 980,  :temp => -55, :coeff => 0.99},
       {:r => 1030, :temp => -50, :coeff => 0.98},
@@ -35,7 +39,7 @@ class KTY81_220
 
     entry = @@RESISTANCE_TABLE.bsearch {|x| x[:r] >= resistance}
     r = entry[:r]
-    puts "Calculate with reference resistance " << r.to_s
+    @logger.debug("Calculate with reference resistance " << r.to_s)
     delta = resistance - r
     delta_in_percentage = delta * 100 / r
 

@@ -7,6 +7,7 @@ server: # settings for connecting to MQTT server
 sensors:
  - name: 'garden/greenhouse/temp'
    channel: 0  #Channel of the AD chip at which the sensor is connected
+   calibration: -19 #Calibration of resistance of temperature sensor
  - name: 'garden/temp'
-   channel: 3
+   channel: 1
 

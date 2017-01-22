@@ -8,7 +8,7 @@ class MCP3208
   end
 
   # read value of 12 bits from selected channel of the DAC chip
-  def readValue(channel = 0)
+  def read_value(channel = 0)
 
     PiPiper::Spi.begin do |spi|
       PiPiper::Spi.set_mode(0,1)
