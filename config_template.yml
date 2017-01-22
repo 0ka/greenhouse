@@ -1,5 +1,6 @@
 ---
 interval: 60  # Interval in seconds to read sensors
+logfile: /var/log/greenhouse.log
 server: # settings for connecting to MQTT server
  host: 'localhost'
  port: 1883

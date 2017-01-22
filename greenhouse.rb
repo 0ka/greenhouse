@@ -15,8 +15,7 @@ class Greenhouse
   def initialize(config_file_name = 'config.yml')
     Logging.logger.root.level = :debug
     load_config config_file_name
-    Logging.logger.root.appenders = Logging.appenders.rolling_file(
-        '/tmp/greenhouse.log',
+    Logging.logger.root.appenders = Logging.appenders.rolling_file(@config['logfile'],
         :layout => Logging.layouts.pattern(:pattern => LOGGER_PATTERN))
     @logger = Logging.logger[self]
     @logger.info 'Greenhouse started'
@@ -55,7 +54,8 @@ class Greenhouse
 
   def read_sensors
     @config['sensors'].each do |sensor|
-      temperature = Temperature_Sensor.new.read_sensor(sensor['channel'])
+      @logger.debug "Try to read sensor #{sensor['name']} with calibration #{sensor['calibration']}"
+      temperature = Temperature_Sensor.new(sensor['calibration']).read_sensor(sensor['channel'])
       @logger.debug "Sensor #{sensor['name']} has temperature #{temperature}"
       @logger.debug @c
       @c.publish(sensor['name'], temperature)
