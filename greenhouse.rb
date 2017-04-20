@@ -29,10 +29,14 @@ class Greenhouse
       @c = EventMachine::MQTT::ClientConnection.connect(server['host'], server['port'])
       @c.subscribe(server['command_topic'])
       @c.receive_callback do |message|
-          p "receive message #{message}"
+          @logger.info "receive message #{message}"
       end
       EventMachine::PeriodicTimer.new(interval) do
-        read_sensors
+        begin
+          read_sensors
+        rescue
+          @logger.warn "Catch exception: " + $!
+        end
       end
     end
   end
