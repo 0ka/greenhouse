@@ -63,6 +63,7 @@ class Greenhouse
       @logger.debug "Sensor #{sensor['name']} has temperature #{temperature}"
       @logger.debug @c
       @c.publish(sensor['name'], temperature)
+      @logger.debug 'Send successful'
     end
   end
 end
