@@ -6,7 +6,7 @@ class KTY81_220
     @logger = Logging.logger[self]
   end
 
-  @@RESISTANCE_TABLE = [
+  RESISTANCE_TABLE = [
       {:r => 980,  :temp => -55, :coeff => 0.99},
       {:r => 1030, :temp => -50, :coeff => 0.98},
       {:r => 1135, :temp => -40, :coeff => 0.96},
@@ -40,12 +40,12 @@ class KTY81_220
   def to_temp(resistance)
     @logger.debug("resistance = " << resistance.to_s)
 
-    entry = @@RESISTANCE_TABLE.bsearch {|x| x[:r] >= resistance}
+    entry = RESISTANCE_TABLE.bsearch {|x| x[:r] >= resistance}
     r = entry[:r]
     @logger.debug("Calculate with reference resistance " << r.to_s)
     delta = resistance - r
     delta_in_percentage = delta * 100.0 / r
 
-    return (entry[:temp] + delta_in_percentage / entry[:coeff]).round(1)
+    (entry[:temp] + delta_in_percentage / entry[:coeff]).round
   end
 end
