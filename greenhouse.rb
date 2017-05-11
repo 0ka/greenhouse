@@ -24,19 +24,26 @@ class Greenhouse
   def run
     interval = @config['interval'] || 60
     @logger.debug @config
-    EventMachine.run do
-      server = @config['server']
-      @c = EventMachine::MQTT::ClientConnection.connect(server['host'], server['port'])
-      @c.subscribe(server['command_topic'])
-      @c.receive_callback do |message|
-          @logger.info "receive message #{message}"
-      end
-      EventMachine::PeriodicTimer.new(interval) do
-        begin
-          read_sensors
-        rescue
-          @logger.warn "Catch exception: " + $!
+    while true
+      begin
+        EventMachine.run do
+          server = @config['server']
+          @c = EventMachine::MQTT::ClientConnection.connect(server['host'], server['port'])
+          @c.subscribe(server['command_topic'])
+          @c.receive_callback do |message|
+              @logger.info "receive message #{message}"
+          end
+          EventMachine::PeriodicTimer.new(interval) do
+            begin
+              read_sensors
+            rescue => e
+              @logger.warn "Error reading sensors #{e.to_s}. Ignoring..."
+            end
+          end
         end
+      rescue => e
+        # Happens for example after reconnect to WiFi. Eventmachine throws error here
+        @logger.warn "Erorr occurred: #{e.to_s}. Ignoring and start again..."
       end
     end
   end
@@ -59,11 +66,11 @@ class Greenhouse
   def read_sensors
     @config['sensors'].each do |sensor|
       @logger.debug "Try to read sensor #{sensor['name']} with calibration #{sensor['calibration']}"
-      temperature = Temperature_Sensor.new(sensor['calibration']).read_sensor(sensor['channel'])
+#      temperature = Temperature_Sensor.new(sensor['calibration']).read_sensor(sensor['channel'])
+      temperature = 10.0
       @logger.debug "Sensor #{sensor['name']} has temperature #{temperature}"
       @logger.debug @c
       @c.publish(sensor['name'], temperature)
-      @logger.debug 'Send successful'
     end
   end
 end
