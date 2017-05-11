@@ -66,8 +66,7 @@ class Greenhouse
   def read_sensors
     @config['sensors'].each do |sensor|
       @logger.debug "Try to read sensor #{sensor['name']} with calibration #{sensor['calibration']}"
-#      temperature = Temperature_Sensor.new(sensor['calibration']).read_sensor(sensor['channel'])
-      temperature = 10.0
+      temperature = Temperature_Sensor.new(sensor['calibration']).read_sensor(sensor['channel'])
       @logger.debug "Sensor #{sensor['name']} has temperature #{temperature}"
       @logger.debug @c
       @c.publish(sensor['name'], temperature)
