@@ -4,11 +4,14 @@ logfile: /var/log/greenhouse.log
 server: # settings for connecting to MQTT server
  host: 'localhost'
  port: 1883
+ username: 'myMQQTUser'
+ password: 'myPasword'
+ telemetry_topic: 'garden/greenhouse'
  command_topic: 'garden/command'
 sensors:
- - name: 'garden/greenhouse/temp'
+ - name: 'temperature_inside'
    channel: 0  #Channel of the AD chip at which the sensor is connected
    calibration: -19 #Calibration of resistance of temperature sensor
- - name: 'garden/temp'
+ - name: 'temperature_outside'
    channel: 1
 

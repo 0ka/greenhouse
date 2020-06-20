@@ -5,6 +5,7 @@ require 'yaml'
 require 'em/pure_ruby'
 require 'eventmachine'
 require 'em/mqtt'
+require 'json'
 require_relative 'sensor/temperature_sensor'
 
 
@@ -28,7 +29,9 @@ class Greenhouse
       begin
         EventMachine.run do
           server = @config['server']
-          @c = EventMachine::MQTT::ClientConnection.connect(server['host'], server['port'])
+          @c = EventMachine::MQTT::ClientConnection.connect(:host => server['host'], :port => server['port'],
+                                                            :username => server['username'],
+                                                            :password => server['password'])
           @c.subscribe(server['command_topic'])
           @c.receive_callback do |message|
               @logger.info "receive message #{message}"
@@ -43,7 +46,7 @@ class Greenhouse
         end
       rescue => e
         # Happens for example after reconnect to WiFi. Eventmachine throws error here
-        @logger.warn "Erorr occurred: #{e.to_s}. Ignoring and start again..."
+        @logger.warn "Error occurred: #{e.to_s}. Ignoring and start again..."
       end
     end
   end
@@ -64,13 +67,15 @@ class Greenhouse
   end
 
   def read_sensors
+    values = {}
     @config['sensors'].each do |sensor|
       @logger.debug "Try to read sensor #{sensor['name']} with calibration #{sensor['calibration']}"
       temperature = Temperature_Sensor.new(sensor['calibration']).read_sensor(sensor['channel'])
       @logger.debug "Sensor #{sensor['name']} has temperature #{temperature}"
       @logger.debug @c
-      @c.publish(sensor['name'], temperature)
+      values[sensor['name'], temperature]
     end
+    @c.publish(@config['telemetry_topic'], JSON.generate(values))
   end
 end
 
