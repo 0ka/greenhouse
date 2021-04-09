@@ -1,4 +1,4 @@
-require 'logging'
+require 'logger'
 require 'pathname'
 require 'mqtt'
 require 'yaml'
@@ -12,41 +12,43 @@ require_relative 'sensor/temperature_sensor'
 class Greenhouse
 
   LOGGER_PATTERN = '%d %-5l %c: %m\n'
+  CSV_PATTERN = '%d;%m\n'
 
   def initialize(config_file_name = 'config.yml')
-    Logging.logger.root.level = :debug
     load_config config_file_name
-    Logging.logger.root.appenders = Logging.appenders.rolling_file(@config['logfile'],
-        :layout => Logging.layouts.pattern(:pattern => LOGGER_PATTERN))
-    @logger = Logging.logger[self]
-    @logger.info 'Greenhouse started'
+    $LOG = Logger.new(@config['logfile'], 'daily')
+    $LOG.info 'Greenhouse started'
+    @csv = Logger.new(@config['csvfile'], 'monthly')
+    @csv.formatter = proc do |severity, datetime, progname, msg|
+      "#{datetime};#{msg}\n"
+    end
   end
 
   def run
     interval = @config['interval'] || 60
-    @logger.debug @config
+    $LOG.debug @config
     while true
       begin
         EventMachine.run do
           server = @config['server']
-          @c = EventMachine::MQTT::ClientConnection.connect(:host => server['host'], :port => server['port'],
-                                                            :username => server['username'],
-                                                            :password => server['password'])
-          @c.subscribe(server['command_topic'])
-          @c.receive_callback do |message|
-              @logger.info "receive message #{message}"
-          end
+#           @c = EventMachine::MQTT::ClientConnection.connect(:host => server['host'], :port => server['port'],
+#                                                             :username => server['username'],
+#                                                             :password => server['password'])
+#           @c.subscribe(server['command_topic'])
+#           @c.receive_callback do |message|
+#               @logger.info "receive message #{message}"
+#          end
           EventMachine::PeriodicTimer.new(interval) do
             begin
               read_sensors
             rescue => e
-              @logger.warn "Error reading sensors #{e.to_s}. Ignoring..."
+              $LOG.warn "Error reading sensors #{e.to_s}. Ignoring..."
             end
           end
         end
       rescue => e
         # Happens for example after reconnect to WiFi. Eventmachine throws error here
-        @logger.warn "Error occurred: #{e.to_s}. Ignoring and start again..."
+        $LOG.warn "Error occurred: #{e.to_s}. Ignoring and start again..."
       end
     end
   end
@@ -69,13 +71,14 @@ class Greenhouse
   def read_sensors
     values = {}
     @config['sensors'].each do |sensor|
-      @logger.debug "Try to read sensor #{sensor['name']} with calibration #{sensor['calibration']}"
+      $LOG.debug "Try to read sensor #{sensor['name']} with calibration #{sensor['calibration']}"
       temperature = Temperature_Sensor.new(sensor['calibration']).read_sensor(sensor['channel'])
-      @logger.debug "Sensor #{sensor['name']} has temperature #{temperature}"
-      @logger.debug @c
-      values[sensor['name'], temperature]
+      $LOG.debug "Sensor #{sensor['name']} has temperature #{temperature}"
+      #$LOG.debug @c
+      values[sensor['name']] = temperature
     end
-    @c.publish(@config['telemetry_topic'], JSON.generate(values))
+    #@c.publish(@config['telemetry_topic'], JSON.generate(values))
+    @csv.info(values.collect{|key,value| "#{key};#{value}"}.join(";"))
   end
 end
 

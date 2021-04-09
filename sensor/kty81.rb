@@ -1,10 +1,6 @@
-require 'logging'
+require 'logger'
 
 class KTY81_220
-
-  def initialize
-    @logger = Logging.logger[self]
-  end
 
   RESISTANCE_TABLE = [
       {:r => 980,  :temp => -55, :coeff => 0.99},
@@ -38,11 +34,12 @@ class KTY81_220
   #
   # returns the temperature in °C (rounded)
   def to_temp(resistance)
-    @logger.debug("resistance = " << resistance.to_s)
+    $LOG.debug("resistance = " << resistance.to_s)
 
     entry = RESISTANCE_TABLE.bsearch {|x| x[:r] >= resistance}
+    return "Error: Resistance to high" if entry.nil?
     r = entry[:r]
-    @logger.debug("Calculate with reference resistance " << r.to_s)
+    $LOG.debug("Calculate with reference resistance " << r.to_s)
     delta = resistance - r
     delta_in_percentage = delta * 100.0 / r
 

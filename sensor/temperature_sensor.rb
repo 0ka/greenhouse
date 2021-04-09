@@ -22,7 +22,6 @@ require_relative 'kty81'
 class Temperature_Sensor
 
   def initialize(calibration = 0, u_total=3.3, resistance_r = 1200)
-    @logger = Logging.logger[self]
     @u_total = u_total
     @r_r = resistance_r
     if calibration.nil? do
@@ -55,7 +54,7 @@ class Temperature_Sensor
       # R = U / I -> I = U / R
       i = u_r / @r_r.to_f
       r_t = u_t / i + @calibration
-      @logger.debug "Voltage sensor: %f, Resistance sensor: %f " % [u_r, r_t]
+      $LOG.debug "Voltage sensor: %f, Resistance sensor: %f " % [u_r, r_t]
       r_t
     end
 
