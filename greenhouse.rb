@@ -20,7 +20,7 @@ class Greenhouse
     $LOG.info 'Greenhouse started'
     @csv = Logger.new(@config['csvfile'], 'monthly')
     @csv.formatter = proc do |severity, datetime, progname, msg|
-      "#{datetime};#{msg}\n"
+      "#{datetime.strftime('%Y-%m-%d %H:%M:%S')};#{msg}\n"
     end
   end
 
@@ -76,9 +76,9 @@ class Greenhouse
       $LOG.debug "Sensor #{sensor['name']} has temperature #{temperature}"
       #$LOG.debug @c
       values[sensor['name']] = temperature
+      @csv.info("#{sensor['name']};#{temperature}")
     end
     #@c.publish(@config['telemetry_topic'], JSON.generate(values))
-    @csv.info(values.collect{|key,value| "#{key};#{value}"}.join(";"))
   end
 end
 
